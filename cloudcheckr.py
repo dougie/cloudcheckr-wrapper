@@ -36,9 +36,31 @@ class CloudCheckr(object):
                      headers={'Content-Type': 'application/json'}):
     self.hostname = hostname.rstrip('/')
     self.access_key = access_key
-    self.endpoints = endpoints
     self.headers = headers
     self.body = None
+    self.endpoints = self._get_all_endpoints()
+
+  def _get_all_endpoints(self):
+
+    path = '/help.json/get_all_api_endpoints'
+    verb = 'GET'
+    status = 200
+    url = self.hostname + path
+    url += '?access_key=' + self.access_key
+    self.client = httplib2.Http('.cache',
+                                disable_ssl_certificate_validation=True)
+    (response, content) = self.client.request(url,
+                                              verb,
+                                              body=self.body,
+                                              headers=self.headers)
+    endpoints = self._request(response, content, status)
+    return { str(controller['method_name']): {
+             'path': "/{0}.json/{1}".format(
+                 controllers['controller_name'],controller['method_name']),
+             'params': [ str(p.rsplit(")", 1)[-1]) 
+               for p in controller['param_names'] if not p.endswith("access_key") ],
+             'method': 'GET', 'status': 200 }
+             for controllers in endpoints for controller in controllers['api_calls'] }
 
   def __getattr__(self, method):
     """Operator overload method.
