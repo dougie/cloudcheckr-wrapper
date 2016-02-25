@@ -1,6 +1,7 @@
 import httplib2
 import json
 import urllib
+import logging
 
 from endpoints import endpoints
 
@@ -34,6 +35,7 @@ class CloudCheckr(object):
   """
   def __init__(self, hostname, access_key,
                      headers={'Content-Type': 'application/json'}):
+    self.logger = logging.getLogger(__name__)
     self.hostname = hostname.rstrip('/')
     self.access_key = access_key
     self.headers = headers
@@ -102,6 +104,7 @@ class CloudCheckr(object):
         url += '&' + urllib.urlencode(kwargs)
       self.client = httplib2.Http('.cache',
                                   disable_ssl_certificate_validation=True)
+      self.logger.debug(url)
       (response, content) = self.client.request(url,
                                                 verb,
                                                 body=self.body,
