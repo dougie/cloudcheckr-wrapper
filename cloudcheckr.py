@@ -3,8 +3,6 @@ import json
 import urllib
 import logging
 
-from endpoints import endpoints
-
 """Python CloudCheckr API wrapper.
 
 Note: SSL is currently disabled. This issue needs to be fixed.
